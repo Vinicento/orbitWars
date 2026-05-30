@@ -1,0 +1,4 @@
+kaggle-environments
+pandas
+matplotlib
+kaggle

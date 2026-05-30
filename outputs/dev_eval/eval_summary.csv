@@ -1,0 +1,7 @@
+matchup,player,agent,games,wins,win_rate,avg_rank,avg_reward,avg_total_ships,avg_planets,avg_production
+main_submission vs agents.nearest_sniper,1,agents.nearest_sniper,20,13,0.65,1.35,0.3,2732.45,16.8,47.15
+main_submission vs agents.nearest_sniper,0,main_submission,20,7,0.35,1.65,-0.3,852.55,5.65,15.65
+main_submission vs agents.passive,0,main_submission,20,15,0.75,1.25,0.5,3257.1,21.8,58.6
+main_submission vs agents.passive,1,agents.passive,20,5,0.25,1.75,-0.5,201.95,0.25,0.4
+main_submission vs random,0,main_submission,20,15,0.75,1.25,0.5,2874.0,20.1,55.5
+main_submission vs random,1,random,20,5,0.25,1.75,-0.5,362.2,5.25,14.2
