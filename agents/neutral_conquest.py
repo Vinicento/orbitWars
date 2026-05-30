@@ -43,19 +43,31 @@ def agent(obs):
     p_enemy = [p for p in planets if p.owner != player and p.owner != -1]
     p_mine = [p for p in planets if p.owner == player]
 
-    min_dist = 9999.99
+    if len(p_mine) == 0:
+        return []
 
-    for p_n in planets:
-        rec_fleet = (p_n.ships + 1)
+    targets = p_neutral if len(p_neutral) > 0 else p_enemy
+
+    for p_n in targets:
+        rec_fleet = p_n.ships + 1
+
+        nearest_planet = None
+        min_dist = float("inf")
+
         for p_m in p_mine:
             dist_between = dist(p_n, p_m)
 
-            if (dist_between < min_dist):
+            if dist_between < min_dist:
                 min_dist = dist_between
-                planet = p_m
+                nearest_planet = p_m
 
-        moves.append([planet.id, angle(planet, p_n), rec_fleet])
+        if nearest_planet is None:
+            continue
 
+        if nearest_planet.ships <= rec_fleet + 3:
+            continue
+
+        moves.append([nearest_planet.id, angle(nearest_planet, p_n), rec_fleet])
     #  if(p_mine[0].ships > rec_fleet):
     #      moves.append([p_mine[0].id, angle(p_mine[0], p), rec_fleet])
 
