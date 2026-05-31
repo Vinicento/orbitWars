@@ -51,12 +51,12 @@ from owtools.metrics import final_rows_from_env, rows_from_env  # noqa: E402
 ENV_NAME = "orbit_wars"
 DEBUG = True
 
-SEEDS = list(range(20))
+#SEEDS = list(range(20))
+
+SEEDS = [0]
 
 MATCHUPS = [
-    ["agents/passive.py", "agents/neutral_conquest.py"],
-    ["agents/nearest_sniper.py", "agents/neutral_conquest.py"],
-    ["agents/roi_expansion.py", "agents/neutral_conquest.py"],
+    ["agents/hierarchy.py", "agents/hierarchy.py"]
     # ["main.py", "agents/neutral_conquest.py"],
 ]
 
@@ -75,6 +75,10 @@ SAVE_PLAYER_RAW = False
 SAVE_TURN_CURVES = False
 # =====================
 
+def print_player_colors(agents: list[str]) -> None:
+    print("\nPLAYER / COLOR MAP:")
+    for player_id, agent_path in enumerate(agents):
+        print(f"  Player {player_id} -> {agent_label(agent_path)} -> color/player slot {player_id}")
 
 def make_run_dir(root: Path) -> Path:
     run_id = datetime.now().strftime("run_%Y%m%d_%H%M%S")
@@ -105,6 +109,58 @@ def agent_label(agent_path: str) -> str:
 
 def matchup_label(agents: list[str]) -> str:
     return f"{agent_label(agents[0])} vs {agent_label(agents[1])}"
+
+def replay_legend_html(agents: list[str]) -> str:
+    player_colors = [
+        "#1f77b4",
+        "#ff7f0e",
+        "#2ca02c",
+        "#d62728",
+    ]
+
+    items = []
+
+    for player_id, agent_path in enumerate(agents):
+        label = agent_label(agent_path)
+        color = player_colors[player_id % len(player_colors)]
+
+        items.append(
+            f"""
+            <div style="margin: 4px 0;">
+                <span style="
+                    display: inline-block;
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                    background: {color};
+                    margin-right: 8px;
+                    vertical-align: middle;
+                    border: 1px solid rgba(255,255,255,0.8);
+                "></span>
+                <b>Player {player_id}</b>: {label}
+            </div>
+            """
+        )
+
+    return f"""
+    <div style="
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 999999;
+        background: rgba(0, 0, 0, 0.78);
+        color: white;
+        padding: 12px 14px;
+        border-radius: 10px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.35;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    ">
+        <div style="font-weight: bold; margin-bottom: 6px;">Agent map</div>
+        {''.join(items)}
+    </div>
+    """
 
 
 def print_config(out_dir: Path) -> None:
@@ -373,8 +429,21 @@ def save_replay(out_dir: Path) -> None:
         env.run(agents)
 
         html = env.render(mode="html", width=HTML_WIDTH, height=HTML_HEIGHT)
+
+        legend = replay_legend_html(agents)
+
+        if "</body>" in html:
+            html = html.replace("</body>", legend + "\n</body>")
+        else:
+            html += legend
+
         name = f"replay_matchup_{REPLAY_MATCHUP_INDEX:02d}_seed_{REPLAY_SEED}.html"
         (out_dir / name).write_text(html, encoding="utf-8")
+
+        print("\nPLAYER / COLOR MAP:")
+        for player_id, agent_path in enumerate(agents):
+            print(f"  Player {player_id} -> {agent_label(agent_path)}")
+
         print(f"Replay saved: {out_dir / name}")
 
     except Exception as exc:
